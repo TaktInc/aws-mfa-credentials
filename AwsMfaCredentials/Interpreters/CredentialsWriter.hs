@@ -1,8 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
@@ -10,10 +8,8 @@
 module AwsMfaCredentials.Interpreters.CredentialsWriter where
 
 import Control.Lens.Operators ((^.))
-import Control.Monad.Catch (MonadCatch)
 import Control.Monad.Freer (Member, Eff, handleRelay, send)
 import Control.Monad.Freer.Exception (Exc, throwError)
-import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Freer.Writer (Writer(..))
 import Data.Ini (Ini(Ini), writeIniFile, readIniFile)
 import qualified Data.HashMap.Strict as M
@@ -32,21 +28,18 @@ newtype CredentialsFileParseError = CredentialsFileParseError String
 -- | Write out credentials to the AWS credentials file.
 --
 -- This is atomic if all accesses use our locking protocol.
-writeCredentials :: forall m r a proxy . ( MonadIO m
-                                         , MonadCatch m
-                                         , Member m r
-                                         , Member (Exc CredentialsFileParseError) r
-                                         )
-                 => proxy m
-                 -> Eff (Writer (Text, Credentials) ': r) a
+writeCredentials :: forall r a . ( Member IO r
+                                 , Member (Exc CredentialsFileParseError) r
+                                 )
+                 => Eff (Writer (Text, Credentials) ': r) a
                  -> Eff r a
-writeCredentials _ = handleRelay pure bind
+writeCredentials = handleRelay pure bind
   where
     bind :: Writer (Text, Credentials) x
          -> (x -> Eff r a)
          -> Eff r a
     bind (Writer (profile, creds)) cont =
-      (send @m . liftIO $ write profile creds) >>= \case
+      (send $ write profile creds) >>= \case
         Nothing -> cont ()
         Just e -> throwError e
     write profile creds = do
