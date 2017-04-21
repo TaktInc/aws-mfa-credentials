@@ -25,7 +25,6 @@ import Control.Monad.Freer (Member, Eff, send, runM)
 import Control.Monad.Freer.Exception (Exc, runError)
 import Control.Monad.Freer.Writer (Writer)
 import Control.Monad.IO.Class (liftIO)
-import Data.Proxy (Proxy(..))
 import Data.Semigroup ((<>))
 import Data.Text (Text)
 import Data.Time (UTCTime)
@@ -106,10 +105,10 @@ mainLoop opts = do
       . handleError awsResponseFailure
       . handleError credentialsFileParseError
       . (False <$)
-      . runWithAskPass (Proxy :: Proxy AWS)
+      . runWithAskPass @AWS
       . runInAWSMonad
-      . writeCredentials (Proxy :: Proxy AWS)
-      . runWait (Proxy :: Proxy AWS)
+      . writeCredentials @AWS
+      . runWait @AWS
     runAskPassFailure RunAskPassTimeout = "Timed out waiting for MFA token"
     runAskPassFailure (RunAskPassFailure _) = "User cancelled token input"
     awsResponseFailure (AWSResponseFailure i) =

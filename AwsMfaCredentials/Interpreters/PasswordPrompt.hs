@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 module AwsMfaCredentials.Interpreters.PasswordPrompt (runWithAskPass, RunAskPassFailure(..)) where
 
 import AwsMfaCredentials.Effects.PasswordPrompt (PasswordPrompt(..))
@@ -36,14 +37,13 @@ runAskPassWithTimeout prompt = timeout (120 * 10 ^ (6 :: Int)) run <&> \case
         e -> Left e
 
 -- | Run the PasswordPrompt effect using ssh-askpass.
-runWithAskPass :: forall r a m proxy . ( MonadIO m
-                                       , Member m r
-                                       , Member (Exc RunAskPassFailure) r
-                                       )
-               => proxy m
-               -> Eff (PasswordPrompt String Text ': r) a
+runWithAskPass :: forall m r a . ( MonadIO m
+                                 , Member m r
+                                 , Member (Exc RunAskPassFailure) r
+                                 )
+               => Eff (PasswordPrompt String Text ': r) a
                -> Eff r a
-runWithAskPass _ = handleRelay pure bind
+runWithAskPass = handleRelay pure bind
   where
     bind :: PasswordPrompt String Text x
          -> (x -> Eff r a)

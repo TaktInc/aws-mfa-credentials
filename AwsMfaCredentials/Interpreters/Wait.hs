@@ -15,11 +15,10 @@ import Data.Time (getCurrentTime, diffUTCTime, NominalDiffTime, UTCTime)
 nominalDiffTimeToMicroseconds :: NominalDiffTime -> Int
 nominalDiffTimeToMicroseconds = floor . (* 10 ^ (6 :: Integer))
 
-runWait :: forall m r a proxy . (MonadIO m, Member m r)
-        => proxy m
-        -> Eff ((Writer UTCTime) ': r) a
+runWait :: forall m r a . (MonadIO m, Member m r)
+        => Eff ((Writer UTCTime) ': r) a
         -> Eff r a
-runWait _ = handleRelay pure bind
+runWait = handleRelay pure bind
   where
     bind :: Writer UTCTime x
          -> (x -> Eff r a)
