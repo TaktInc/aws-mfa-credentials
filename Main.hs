@@ -10,7 +10,6 @@ module Main where
 import AwsMfaCredentials.MainLoop (Opts(..), mainLoopBody)
 import qualified AwsMfaCredentials.Effects.AWS as E (AWS)
 import AwsMfaCredentials.Effects.PasswordPrompt (PasswordPrompt)
-import AwsMfaCredentials.Effects.Wait (Wait)
 import AwsMfaCredentials.Interpreters.AWS ( runInAWSMonad
                                           , AWSResponseFailure(..)
                                           )
@@ -28,6 +27,7 @@ import Control.Monad.Freer.Writer (Writer)
 import Control.Monad.Freer.IO (runIOInMonadIO)
 import Data.Semigroup ((<>))
 import Data.Text (Text)
+import Data.Time (UTCTime)
 import Network.AWS (AWS, newEnv, runAWS, Credentials(FromFile), runResourceT)
 import Network.AWS.Auth (credFile)
 import qualified Network.AWS.STS.Types as STS
@@ -87,8 +87,8 @@ mainLoop opts = do
       False -> mainLoop opts
       True -> return ()
   where
-    interpret :: Eff '[ Wait
-                      , (Writer (Text, STS.Credentials))
+    interpret :: Eff '[ Writer UTCTime
+                      , Writer (Text, STS.Credentials)
                       , E.AWS
                       , PasswordPrompt String Text
                       , Exc CredentialsFileParseError

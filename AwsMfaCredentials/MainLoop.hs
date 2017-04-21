@@ -11,13 +11,13 @@ import AwsMfaCredentials.Effects.AWS (AWS, getSessionToken)
 import AwsMfaCredentials.Effects.PasswordPrompt ( PasswordPrompt
                                                 , passwordPrompt
                                                 )
-import AwsMfaCredentials.Effects.Wait (Wait, waitUntil)
+import AwsMfaCredentials.Effects.Wait (waitUntil)
 import Control.Lens.Operators ((&), (?~), (.~), (^.))
 import Control.Monad.Freer (Eff, Member)
 import Control.Monad.Freer.Writer (Writer, tell)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Time.Clock (addUTCTime)
+import Data.Time.Clock (addUTCTime, UTCTime)
 import Network.AWS.STS.Types (Credentials, cExpiration)
 import qualified Network.AWS.STS.GetSessionToken as STS
 import Numeric.Natural (Natural)
@@ -33,7 +33,7 @@ data Opts = Opts
 mainLoopBody :: forall r . ( Member (PasswordPrompt String Text) r
                            , Member AWS r
                            , Member (Writer (Text, Credentials)) r
-                           , Member Wait r
+                           , Member (Writer UTCTime) r
                            ) => Opts -> Eff r ()
 mainLoopBody (Opts {..}) = do
     mfa <- case T.unpack $ T.concat [ "Enter MFA token for "
