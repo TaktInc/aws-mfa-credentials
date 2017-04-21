@@ -10,7 +10,6 @@ module Main where
 import AwsMfaCredentials.MainLoop (Opts(..), mainLoopBody)
 import qualified AwsMfaCredentials.Effects.AWS as E (AWS)
 import AwsMfaCredentials.Effects.PasswordPrompt (PasswordPrompt)
-import AwsMfaCredentials.Effects.Wait (Wait)
 import AwsMfaCredentials.Interpreters.AWS ( runInAWSMonad
                                           , AWSResponseFailure(..)
                                           )
@@ -26,9 +25,9 @@ import Control.Monad.Freer (Member, Eff, send, runM)
 import Control.Monad.Freer.Exception (Exc, runError)
 import Control.Monad.Freer.Writer (Writer)
 import Control.Monad.IO.Class (liftIO)
-import Data.Proxy (Proxy(..))
 import Data.Semigroup ((<>))
 import Data.Text (Text)
+import Data.Time (UTCTime)
 import Network.AWS (AWS, newEnv, runAWS, Credentials(FromFile), runResourceT)
 import Network.AWS.Auth (credFile)
 import qualified Network.AWS.STS.Types as STS
@@ -91,13 +90,13 @@ mainLoop opts = do
       False -> mainLoop opts
       True -> return ()
   where
-    interpret :: Eff '[ Wait
-                      , (Writer (Text, STS.Credentials))
+    interpret :: Eff '[ Writer UTCTime
+                      , Writer (Text, STS.Credentials)
                       , E.AWS
-                      , (PasswordPrompt String Text)
-                      , (Exc CredentialsFileParseError)                      
-                      , (Exc AWSResponseFailure)
-                      , (Exc RunAskPassFailure)
+                      , PasswordPrompt String Text
+                      , Exc CredentialsFileParseError
+                      , Exc AWSResponseFailure
+                      , Exc RunAskPassFailure
                       , AWS
                       ] () -> AWS Bool
     interpret =
@@ -106,10 +105,10 @@ mainLoop opts = do
       . handleError awsResponseFailure
       . handleError credentialsFileParseError
       . (False <$)
-      . runWithAskPass (Proxy :: Proxy AWS)
+      . runWithAskPass @AWS
       . runInAWSMonad
-      . writeCredentials (Proxy :: Proxy AWS)
-      . runWait (Proxy :: Proxy AWS)
+      . writeCredentials @AWS
+      . runWait @AWS
     runAskPassFailure RunAskPassTimeout = "Timed out waiting for MFA token"
     runAskPassFailure (RunAskPassFailure _) = "User cancelled token input"
     awsResponseFailure (AWSResponseFailure i) =

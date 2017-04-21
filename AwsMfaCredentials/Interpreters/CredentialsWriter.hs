@@ -32,15 +32,14 @@ newtype CredentialsFileParseError = CredentialsFileParseError String
 -- | Write out credentials to the AWS credentials file.
 --
 -- This is atomic if all accesses use our locking protocol.
-writeCredentials :: forall m r a proxy . ( MonadIO m
-                                         , MonadCatch m
-                                         , Member m r
-                                         , Member (Exc CredentialsFileParseError) r
-                                         )
-                 => proxy m
-                 -> Eff (Writer (Text, Credentials) ': r) a
+writeCredentials :: forall m r a . ( MonadIO m
+                                   , MonadCatch m
+                                   , Member m r
+                                   , Member (Exc CredentialsFileParseError) r
+                                   )
+                 => Eff (Writer (Text, Credentials) ': r) a
                  -> Eff r a
-writeCredentials _ = handleRelay pure bind
+writeCredentials = handleRelay pure bind
   where
     bind :: Writer (Text, Credentials) x
          -> (x -> Eff r a)
