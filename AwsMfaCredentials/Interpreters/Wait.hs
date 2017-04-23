@@ -1,12 +1,12 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE GADTs               #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators       #-}
 module AwsMfaCredentials.Interpreters.Wait (runWait) where
 
 import Control.Concurrent (threadDelay)
-import Control.Monad.Freer (Member, Eff, runNat, send)
+import Control.Monad.Freer (Member, Eff, runNat)
 import Control.Monad.Freer.Writer (Writer(..))
 import Data.Time (getCurrentTime, diffUTCTime, NominalDiffTime, UTCTime)
 

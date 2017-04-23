@@ -1,9 +1,9 @@
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE LambdaCase          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeOperators       #-}
 module AwsMfaCredentials.Interpreters.PasswordPrompt (runWithAskPass, RunAskPassFailure(..)) where
 
 import AwsMfaCredentials.Effects.PasswordPrompt (PasswordPrompt(..))

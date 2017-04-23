@@ -1,5 +1,5 @@
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs            #-}
 module AwsMfaCredentials.Effects.AWS where
 
 import Control.Monad.Freer (Eff, Member, send)
