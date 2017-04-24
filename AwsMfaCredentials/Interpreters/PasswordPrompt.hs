@@ -4,29 +4,55 @@
 {-# LANGUAGE LambdaCase          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators       #-}
-module AwsMfaCredentials.Interpreters.PasswordPrompt (runWithAskPass, RunAskPassFailure(..)) where
+module AwsMfaCredentials.Interpreters.PasswordPrompt
+  ( RunAskPassFailure(..)
+  , runWithAskPass
+  ) where
 
-import AwsMfaCredentials.Effects.PasswordPrompt (PasswordPrompt(..))
-import Control.Lens.Operators ((<&>))
-import Control.Monad.Freer (Member, Eff, handleRelay, send)
-import Control.Monad.Freer.Exception (Exc, throwError)
-import Data.Text (Text, strip)
-import Data.Text.IO as T
-import System.Exit (ExitCode(..))
+import AwsMfaCredentials.Effects.PasswordPrompt
+  ( PasswordPrompt(..)
+  )
+import Control.Lens.Operators
+  ( (<&>)
+  )
+import Control.Monad.Freer
+  ( Eff
+  , Member
+  , handleRelay
+  , send
+  )
+import Control.Monad.Freer.Exception
+  ( Exc
+  , throwError
+  )
+import Data.Text
+  ( Text
+  , strip
+  )
+import qualified Data.Text.IO as T
+import System.Exit
+  ( ExitCode(..)
+  )
 import System.Process
-import System.Timeout (timeout)
+import System.Timeout
+  ( timeout
+  )
 
 data RunAskPassFailure = RunAskPassTimeout
                        | RunAskPassFailure !ExitCode
 
 runAskPassWithTimeout :: String -> IO (Either RunAskPassFailure Text)
-runAskPassWithTimeout prompt = timeout (120 * 10 ^ (6 :: Int)) run <&> \case
-    Just (Left code) -> Left $ RunAskPassFailure code
-    Just (Right pass) -> Right pass
-    Nothing -> Left RunAskPassTimeout
+runAskPassWithTimeout prompt =
+    timeout (120 * 10 ^ (6 :: Int)) run <&> \case
+      Just (Left code) -> Left $ RunAskPassFailure code
+      Just (Right pass) -> Right pass
+      Nothing -> Left RunAskPassTimeout
   where
     procSpec =
-      (proc "ssh-askpass" [ prompt ]) { std_in = NoStream, std_out = CreatePipe }
+      (proc "ssh-askpass" [ prompt ]) { std_in = NoStream
+                                      , std_out = CreatePipe
+                                      }
+
     run = withCreateProcess procSpec $ \_ (Just out) _ p -> do
       pass <- T.hGetContents out
       waitForProcess p <&> \case

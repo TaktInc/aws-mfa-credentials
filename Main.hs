@@ -7,33 +7,73 @@
 {-# LANGUAGE TypeOperators       #-}
 module Main where
 
-import AwsMfaCredentials.MainLoop (Opts(..), mainLoopBody)
-import qualified AwsMfaCredentials.Effects.AWS as E (AWS)
-import AwsMfaCredentials.Effects.PasswordPrompt (PasswordPrompt)
-import AwsMfaCredentials.Interpreters.AWS ( runInAWSMonad
-                                          , AWSResponseFailure(..)
-                                          )
-import AwsMfaCredentials.Interpreters.CredentialsWriter
-  ( writeCredentials
-  , CredentialsFileParseError(..)
+import AwsMfaCredentials.MainLoop
+  ( Opts(..)
+  , mainLoopBody
   )
-import AwsMfaCredentials.Interpreters.PasswordPrompt ( runWithAskPass
-                                                     , RunAskPassFailure(..)
-                                                     )
-import AwsMfaCredentials.Interpreters.Wait (runWait)
-import Control.Monad.Freer (Member, Eff, send, runM)
-import Control.Monad.Freer.Exception (Exc, runError)
-import Control.Monad.Freer.Writer (Writer)
-import Control.Monad.Freer.IO (runIOInMonadIO)
-import Data.Semigroup ((<>))
-import Data.Text (Text)
-import Data.Time (UTCTime)
-import Network.AWS (AWS, newEnv, runAWS, Credentials(FromFile), runResourceT)
-import Network.AWS.Auth (credFile)
+import qualified AwsMfaCredentials.Effects.AWS as E
+import AwsMfaCredentials.Effects.PasswordPrompt
+  ( PasswordPrompt
+  )
+import AwsMfaCredentials.Interpreters.AWS
+  ( AWSResponseFailure(..)
+  , runInAWSMonad
+  )
+import AwsMfaCredentials.Interpreters.CredentialsWriter
+  ( CredentialsFileParseError(..)
+  , writeCredentials
+  )
+import AwsMfaCredentials.Interpreters.PasswordPrompt
+  ( RunAskPassFailure(..)
+  , runWithAskPass
+  )
+import AwsMfaCredentials.Interpreters.Wait
+  ( runWait
+  )
+import Control.Monad.Freer
+  ( Eff
+  , Member
+  , runM
+  , send
+  )
+import Control.Monad.Freer.Exception
+  ( Exc
+  , runError
+  )
+import Control.Monad.Freer.Writer
+  ( Writer
+  )
+import Control.Monad.Freer.IO
+  ( runIOInMonadIO
+  )
+import Data.Semigroup
+  ( (<>)
+  )
+import Data.Text
+  ( Text
+  )
+import Data.Time
+  ( UTCTime
+  )
+import Network.AWS
+  ( AWS
+  , newEnv
+  , runAWS
+  , Credentials(..)
+  , runResourceT
+  )
+import Network.AWS.Auth
+  ( credFile
+  )
 import qualified Network.AWS.STS.Types as STS
 import Options.Applicative
-import Options.Applicative.Text (textOption)
-import System.IO (hPutStrLn, stderr)
+import Options.Applicative.Text
+  ( textOption
+  )
+import System.IO
+  ( hPutStrLn
+  , stderr
+  )
 
 -- | Parser for command line options
 optsParser :: Parser Opts
@@ -108,10 +148,15 @@ mainLoop opts = do
       . runInAWSMonad
       . writeCredentials
       . runWait
-    runAskPassFailure RunAskPassTimeout = "Timed out waiting for MFA token"
-    runAskPassFailure (RunAskPassFailure _) = "User cancelled token input"
+
+    runAskPassFailure RunAskPassTimeout =
+      "Timed out waiting for MFA token"
+    runAskPassFailure (RunAskPassFailure _) =
+      "User cancelled token input"
+
     awsResponseFailure (AWSResponseFailure i) =
       "Requesting temporary credentials from AWS failed with HTTP error code " ++ show i
+
     credentialsFileParseError (CredentialsFileParseError msg) =
       "Error parsing the AWS credentials file: " ++ msg
 
