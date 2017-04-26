@@ -34,6 +34,7 @@ import Control.Monad.Freer
   ( Eff
   , Member
   , runM
+  , runNat
   , send
   )
 import Control.Monad.Freer.Exception
@@ -43,9 +44,7 @@ import Control.Monad.Freer.Exception
 import Control.Monad.Freer.Writer
   ( Writer
   )
-import Control.Monad.Freer.IO
-  ( runIOInMonadIO
-  )
+import Control.Monad.IO.Class ( liftIO )
 import Data.Semigroup
   ( (<>)
   )
@@ -139,7 +138,7 @@ mainLoop opts = do
                       ] () -> AWS Bool
     interpret =
       runM
-      . runIOInMonadIO @AWS
+      . runNat @AWS liftIO
       . handleError runAskPassFailure
       . handleError awsResponseFailure
       . handleError credentialsFileParseError
