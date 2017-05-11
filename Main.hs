@@ -7,72 +7,29 @@
 {-# LANGUAGE TypeOperators       #-}
 module Main where
 
-import AwsMfaCredentials.MainLoop
-  ( Opts(..)
-  , mainLoopBody
-  )
+import AwsMfaCredentials.MainLoop (Opts(..), mainLoopBody)
 import qualified AwsMfaCredentials.Effects.AWS as E
-import AwsMfaCredentials.Effects.PasswordPrompt
-  ( PasswordPrompt
-  )
+import AwsMfaCredentials.Effects.PasswordPrompt (PasswordPrompt)
 import AwsMfaCredentials.Interpreters.AWS
-  ( AWSResponseFailure(..)
-  , runInAWSMonad
-  )
+  (AWSResponseFailure(..), runInAWSMonad)
 import AwsMfaCredentials.Interpreters.CredentialsWriter
-  ( CredentialsFileParseError(..)
-  , writeCredentials
-  )
+  (CredentialsFileParseError(..), writeCredentials)
 import AwsMfaCredentials.Interpreters.PasswordPrompt
-  ( RunAskPassFailure(..)
-  , runWithAskPass
-  )
-import AwsMfaCredentials.Interpreters.Wait
-  ( runWait
-  )
-import Control.Monad.Freer
-  ( Eff
-  , Member
-  , runM
-  , runNat
-  , send
-  )
-import Control.Monad.Freer.Exception
-  ( Exc
-  , runError
-  )
-import Control.Monad.Freer.Writer
-  ( Writer
-  )
-import Control.Monad.IO.Class ( liftIO )
-import Data.Semigroup
-  ( (<>)
-  )
-import Data.Text
-  ( Text
-  )
-import Data.Time
-  ( UTCTime
-  )
-import Network.AWS
-  ( AWS
-  , newEnv
-  , runAWS
-  , Credentials(..)
-  , runResourceT
-  )
-import Network.AWS.Auth
-  ( credFile
-  )
+  (RunAskPassFailure(..), runWithAskPass)
+import AwsMfaCredentials.Interpreters.Wait (runWait)
+import Control.Monad.Freer (Eff, Member, runM, runNat, send)
+import Control.Monad.Freer.Exception (Exc, runError)
+import Control.Monad.Freer.Writer (Writer)
+import Control.Monad.IO.Class (liftIO)
+import Data.Semigroup ((<>))
+import Data.Text (Text)
+import Data.Time (UTCTime)
+import Network.AWS (AWS, newEnv, runAWS, Credentials(..), runResourceT)
+import Network.AWS.Auth (credFile)
 import qualified Network.AWS.STS.Types as STS
 import Options.Applicative
-import Options.Applicative.Text
-  ( textOption
-  )
-import System.IO
-  ( hPutStrLn
-  , stderr
-  )
+import Options.Applicative.Text (textOption)
+import System.IO (hPutStrLn, stderr)
 
 -- | Parser for command line options
 optsParser :: Parser Opts

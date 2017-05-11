@@ -5,23 +5,11 @@
 {-# LANGUAGE TypeOperators       #-}
 module AwsMfaCredentials.Interpreters.Wait where
 
-import Control.Concurrent
-  ( threadDelay
-  )
-import Control.Monad.Freer
-  ( Eff
-  , Member
-  , runNat
-  )
-import Control.Monad.Freer.Writer
-  ( Writer(..)
-  )
+import Control.Concurrent (threadDelay)
+import Control.Monad.Freer (Eff, Member, runNat)
+import Control.Monad.Freer.Writer (Writer(..))
 import Data.Time
-  ( NominalDiffTime
-  , UTCTime
-  , diffUTCTime
-  , getCurrentTime
-  )
+  (NominalDiffTime, UTCTime, diffUTCTime, getCurrentTime)
 
 runWait :: forall r a . (Member IO r)
         => Eff ((Writer UTCTime) ': r) a

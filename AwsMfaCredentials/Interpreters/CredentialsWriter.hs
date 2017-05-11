@@ -7,47 +7,18 @@
 {-# LANGUAGE TypeOperators       #-}
 module AwsMfaCredentials.Interpreters.CredentialsWriter where
 
-import Control.Lens.Operators
-  ( (^.)
-  )
-import Control.Monad.Freer
-  ( Eff
-  , Member
-  , handleRelay
-  , send
-  )
-import Control.Monad.Freer.Exception
-  ( Exc
-  , throwError
-  )
-import Control.Monad.Freer.Writer
-  ( Writer(..)
-  )
-import Data.Ini
-  ( Ini(..)
-  , readIniFile
-  , writeIniFile
-  )
+import Control.Lens.Operators ((^.))
+import Control.Monad.Freer (Eff, Member, handleRelay, send)
+import Control.Monad.Freer.Exception (Exc, throwError)
+import Control.Monad.Freer.Writer (Writer(..))
+import Data.Ini (Ini(..), readIniFile, writeIniFile)
 import qualified Data.HashMap.Strict as M
-import Data.Text
-  ( Text
-  )
-import Network.AWS.Auth
-  ( credFile
-  )
+import Data.Text (Text)
+import Network.AWS.Auth (credFile)
 import Network.AWS.STS.Types
-  ( Credentials
-  , cAccessKeyId
-  , cSecretAccessKey
-  , cSessionToken
-  )
-import System.FileLock
-  ( SharedExclusive(..)
-  , withFileLock
-  )
-import System.FilePath
-  ( replaceBaseName
-  )
+  (Credentials, cAccessKeyId, cSecretAccessKey, cSessionToken)
+import System.FileLock (SharedExclusive(..), withFileLock)
+import System.FilePath (replaceBaseName)
 
 newtype CredentialsFileParseError = CredentialsFileParseError String
 

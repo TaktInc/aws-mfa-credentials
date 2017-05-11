@@ -1,12 +1,8 @@
-{-# LANGUAGE FlexibleContexts    #-}
-{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs            #-}
 module AwsMfaCredentials.Effects.PasswordPrompt where
 
-import Control.Monad.Freer
-  ( Eff
-  , Member
-  , send
-  )
+import Control.Monad.Freer (Eff, Member, send)
 
 -- | Password prompting effects
 data PasswordPrompt prompt ret a where

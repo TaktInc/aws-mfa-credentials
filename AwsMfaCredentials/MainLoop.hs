@@ -4,47 +4,19 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module AwsMfaCredentials.MainLoop where
 
-import AwsMfaCredentials.Effects.AWS
-  ( AWS
-  , getSessionToken
-  )
+import AwsMfaCredentials.Effects.AWS (AWS, getSessionToken)
 import AwsMfaCredentials.Effects.PasswordPrompt
-  ( PasswordPrompt
-  , passwordPrompt
-  )
-import AwsMfaCredentials.Effects.Wait
-  ( waitUntil
-  )
-import Control.Lens.Operators
-  ( (&)
-  , (?~)
-  , (.~)
-  , (^.)
-  )
-import Control.Monad.Freer
-  ( Eff
-  , Member
-  )
-import Control.Monad.Freer.Writer
-  ( Writer
-  , tell
-  )
-import Data.Text
-  ( Text
-  )
+  (PasswordPrompt, passwordPrompt)
+import AwsMfaCredentials.Effects.Wait (waitUntil)
+import Control.Lens.Operators ((&), (?~), (.~), (^.))
+import Control.Monad.Freer (Eff, Member)
+import Control.Monad.Freer.Writer (Writer, tell)
+import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Time.Clock
-  ( UTCTime
-  , addUTCTime
-  )
-import Network.AWS.STS.Types
-  ( Credentials
-  , cExpiration
-  )
+import Data.Time.Clock (UTCTime, addUTCTime)
+import Network.AWS.STS.Types (Credentials, cExpiration)
 import qualified Network.AWS.STS.GetSessionToken as STS
-import Numeric.Natural
-  ( Natural
-  )
+import Numeric.Natural (Natural)
 
 -- | Command line options
 data Opts = Opts

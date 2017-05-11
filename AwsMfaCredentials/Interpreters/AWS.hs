@@ -6,27 +6,13 @@
 {-# LANGUAGE TypeOperators       #-}
 module AwsMfaCredentials.Interpreters.AWS where
 
-import AwsMfaCredentials.Effects.AWS
-  ( AWS(..)
-  )
-import Control.Lens.Operators
-  ( (^.)
-  )
-import Control.Monad.Freer
-  ( Eff
-  , Member
-  , handleRelay
-  , send
-  )
-import Control.Monad.Freer.Exception
-  ( Exc
-  , throwError
-  )
+import AwsMfaCredentials.Effects.AWS (AWS(..))
+import Control.Lens.Operators ((^.))
+import Control.Monad.Freer (Eff, Member, handleRelay, send)
+import Control.Monad.Freer.Exception (Exc, throwError)
 import qualified Network.AWS as Amazonka
 import Network.AWS.STS.GetSessionToken
-  ( gstrsCredentials
-  , gstrsResponseStatus
-  )
+  (gstrsCredentials, gstrsResponseStatus)
 
 newtype AWSResponseFailure = AWSResponseFailure Int
 

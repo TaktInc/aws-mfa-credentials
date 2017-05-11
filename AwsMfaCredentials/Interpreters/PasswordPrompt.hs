@@ -5,38 +5,20 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators       #-}
 module AwsMfaCredentials.Interpreters.PasswordPrompt
-  ( RunAskPassFailure(..)
-  , runWithAskPass
-  ) where
+  (RunAskPassFailure(..), runWithAskPass) where
 
-import AwsMfaCredentials.Effects.PasswordPrompt
-  ( PasswordPrompt(..)
-  )
-import Control.Lens.Operators
-  ( (<&>)
-  )
-import Control.Monad.Freer
-  ( Eff
-  , Member
-  , handleRelay
-  , send
-  )
-import Control.Monad.Freer.Exception
-  ( Exc
-  , throwError
-  )
-import Data.Text
-  ( Text
-  , strip
-  )
+import AwsMfaCredentials.Effects.PasswordPrompt (PasswordPrompt(..))
+import Control.Lens.Operators ((<&>))
+import Control.Monad.Freer (Eff, Member, handleRelay, send)
+import Control.Monad.Freer.Exception (Exc, throwError)
+import Data.Text (Text, strip)
 import qualified Data.Text.IO as T
-import System.Exit
-  ( ExitCode(..)
-  )
+import System.Exit (ExitCode(..))
 import System.Process
-import System.Timeout
-  ( timeout
+  ( proc, withCreateProcess, waitForProcess
+  , std_in, std_out, StdStream(..)
   )
+import System.Timeout (timeout)
 
 data RunAskPassFailure = RunAskPassTimeout
                        | RunAskPassFailure !ExitCode
